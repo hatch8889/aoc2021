@@ -3,14 +3,14 @@ def get_crabs(lines: []):
 
 
 def part2(c: int):
-    return sum(range(1, c + 1))
+    return int(c * (c + 1) / 2)
 
 
 def day7():
     with open('day7.txt') as data:
         crabs = get_crabs(data.read())
 
-        least_fuel: int = False
+        least_fuel: int = 0
         for i in range(min(crabs), max(crabs) + 1):
             fuel = 0
             for c in crabs:
