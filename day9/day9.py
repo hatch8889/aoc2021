@@ -1,25 +1,35 @@
+import pygame
+
+
 class Point:
     x: int = 0
     y: int = 0
+    n: int = 0
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, n):
         self.x = x
         self.y = y
+        self.n = n
 
 
 class Basin:
     points = []
     # bounding box
-    min_x = 0
-    min_y = 0
-    max_x = 0
-    max_y = 0
+    min_x = None
+    min_y = None
+    max_x = None
+    max_y = None
 
-    def __init__(self):
+    def __init__(self, x, y, c):
         self.points = []
+        self.min_y = y
+        self.max_y = y
+        self.min_x = x
+        self.max_x = x
+        self.add_point(x, y, c)
 
-    def add_point(self, x: int, y: int):
-        self.points.append(Point(x, y))
+    def add_point(self, x: int, y: int, n: int):
+        self.points.append(Point(x, y, n))
         if x < self.min_x:
             self.min_x = x
         if y < self.min_y:
@@ -91,28 +101,49 @@ def height_points(matrix: []):
                 if len(matched_basins) > 1:
                     for b in matched_basins[1:]:
                         for p in b.points:
-                            basin.add_point(p.x, p.y)
+                            basin.add_point(p.x, p.y, c)
                         basins.remove(b)
 
                 if not basin.in_basin(x, y):
-                    basin.add_point(x, y)
+                    basin.add_point(x, y, c)
                 continue
 
-            nb = Basin()
-            nb.add_point(x, y)
+            nb = Basin(x, y, c)
             basins.append(nb)
     return basins
 
 
+color_map = {
+    0: (51, 0, 0),
+    1: (102, 0, 0),
+    2: (153, 0, 0),
+    3: (204, 0, 0),
+    4: (255, 0, 0),
+    5: (255, 51, 0),
+    6: (255, 102, 0),
+    7: (255, 153, 0),
+    8: (255, 204, 0),
+    9: (0, 0, 51)
+}
+
+
 def day9():
+    pygame.init()
+    zoom = 12
+    screen = pygame.display.set_mode((zoom*100, zoom*100))
+    done = False
+    pygame.display.flip()
+
     with open('day9.txt') as data:
         lines = data.read().splitlines()
         matrix = []
-        for x in range(0, len(lines)):
-            row = lines[x]
+        for col_index in range(0, len(lines)):
+            row = lines[col_index]
             yarr = []
-            for y in range(0, len(row)):
-                yarr.append(int(row[y]))
+            for row_index in range(0, len(row)):
+                c = int(row[row_index])
+                yarr.append(c)
+                pygame.draw.rect(screen, color_map[c], pygame.Rect(row_index * zoom, col_index * zoom, zoom, zoom))
             matrix.append(yarr)
 
         basins = height_points(matrix)
@@ -120,9 +151,35 @@ def day9():
         for b in basins:
             sizes.append(b.size())
 
+        for xline in range(zoom, zoom*100, zoom):
+            pygame.draw.line(screen, (0, 0, 0), (xline, 0), (xline, zoom*100), 1)
+            pygame.draw.line(screen, (0, 0, 0), (0, xline), (zoom*100, xline), 1)
+
         bb = list(reversed(sorted(sizes)))
+
+        for i in range(0, len(basins)):
+            b = basins[i]
+
+            rl = b.min_x * zoom + 1
+            rt = b.min_y * zoom + 1
+            rw = (b.max_x - b.min_x) * zoom + 7
+            rh = (b.max_y - b.min_y) * zoom + 7
+
+            font = pygame.font.Font(None, len(b.points))
+            text = font.render(f"{len(b.points)}", True, (255, 122, 255))
+            tl = rl + rw // 2 - text.get_width() // 2
+            tt = rt + rh // 2 - text.get_height() // 2
+            screen.blit(text, (tl, tt))
+
         print(f"{bb[0]}  {bb[1]} {bb[2]}")
         print(bb[0] * bb[1] * bb[2])
+
+    pygame.display.flip()
+
+    while not done:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
 
 
 if __name__ == '__main__':
