@@ -1,6 +1,6 @@
 import numpy as np
 
-data = np.loadtxt('day11.txt', dtype=(int, int), converters={0: list}, encoding='latin1')
+data = np.genfromtxt('day11.txt', delimiter=1, dtype=int)
 all_flashes = 0
 
 for i in range(1, 1000):
