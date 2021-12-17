@@ -21,7 +21,7 @@ def get_color(i):
     return r, g, b
 
 
-def paint(nodes):
+def paint(nodes, short_path):
     pygame.init()
     screen = pygame.display.set_mode((zoom * 100, zoom*100))
 
@@ -33,10 +33,17 @@ def paint(nodes):
 
     pygame.display.flip()
 
+    for coord in short_path:
+        color = (50, 50, 255)
+        x = int(coord[0])
+        y = int(coord[1])
+        pygame.draw.rect(screen, color, pygame.Rect(y * zoom, x * zoom, zoom, zoom))
+
     done = False
     while not done:
         for event in pygame.event.get():
-            pygame.time.delay(100)
+            pygame.time.delay(10)
+            pygame.display.flip()
             if event.type == pygame.QUIT:
                 done = True
 
@@ -62,6 +69,7 @@ def shortest_path(data):
 
     while len(priority_queue) > 0:
         cost, node = priority_queue.pop()
+
         if visited.count(node) > 0:
             continue
         visited.append(node)
@@ -81,12 +89,44 @@ def shortest_path(data):
     return prev
 
 
+def get_next_neighbour(visited, current_node, data, nodes):
+    nbs = neighbours(data, current_node)
+    best = None
+    for nb in nbs:
+        if visited.count(nb) > 0:
+            continue
+
+        val = nodes[nb]
+        if best is None:
+            best = nb, val
+            continue
+        if val < best[1]:
+            best = nb, val
+    if best is None:
+        return None
+    return best[0]
+
+
+def get_path(data, nodes):
+    visited = []
+    current_node = (99, 99)
+    visited.append(current_node)
+    while True:
+        current_node = get_next_neighbour(visited, current_node, data, nodes)
+        if not current_node:
+            break
+        visited.append(current_node)
+
+    return visited
+
+
 def day15():
     data = np.genfromtxt('day15.txt', delimiter=1, dtype=int)
-    sp = shortest_path(data)
-    print(sp)
-    print(len(sp))
-    paint(sp)
+    nodes = shortest_path(data)
+    short_path = get_path(data, nodes)
+    print(short_path)
+    print(len(nodes))
+    paint(nodes, short_path)
 
 
 if __name__ == '__main__':
