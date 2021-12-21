@@ -33,9 +33,6 @@ def day20(image_data, enhancement):
             yield updated_image.copy(), step
 
 
-def count_pixels(image): return sum(row.count('#') for row in image)
-
-
 if __name__ == '__main__':
     with open('day20.txt') as data:
         parts = data.read().split('\n')

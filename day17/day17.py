@@ -46,7 +46,7 @@ def try_hit(velocity, target_area):
 
 def inter(vx, target_area):
     ret = []
-    for vy in range(-400, 400):
+    for vy in range(-50, 400):
         hit, max_y, velocity = try_hit((vx, vy), target_area)
         if hit == 1:
             ret.append((hit, max_y, velocity))
@@ -57,6 +57,7 @@ def day17():
     th_executor = concurrent.futures.ThreadPoolExecutor(max_workers=24)
     event_loop = asyncio.get_event_loop()
 
+    xxx = (352, 377, -49, -30)
     my_target_area = (155, 215, -132, -72)
     target_area = (20, 30, -10, -5)
     max_y = -500
@@ -64,8 +65,8 @@ def day17():
     count = 0
     tasks = []
 
-    for vx in range(0, 400):
-        task = event_loop.run_in_executor(th_executor, inter, vx, my_target_area)
+    for vx in range(0, 800):
+        task = event_loop.run_in_executor(th_executor, inter, vx, xxx)
         tasks.append(task)
 
     completed = asyncio.wait(tasks)
