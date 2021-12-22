@@ -34,6 +34,6 @@ def play(p1_score, p2_score, p1_pos, p2_pos):
     return win, lose
 
 
-wins, loses = play(0, 0, 1, 2)
+wins, loses = play(0, 0, 2, 4)
 print(wins)
 print(loses)
